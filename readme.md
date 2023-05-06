@@ -1,8 +1,6 @@
 # PoolC-Spring-Practice
 
-iCal 국제 표준을 준수하는 캘린더 서버를 개발해 봅시다.
-단순 일정 작성 뿐만 아니라, 반복 일정, 일정 공유/초대 등의 기능등 복잡한 추가 기능도 개발해야 합니다.
-물론, 이 과정에서 외부 캘린더와의 import/export도 완벽하게 동작해야 합니다.
+풀씨 백엔드와 유사하지만, 일부 기능들을 개선한 서버를 만들어봅시다. 물론 풀씨 페이지는 규모가 상당히 크기에, 모든 컴포넌트를 만들 수 없으니 기본적인 것들만 구현해 봅시다.
 
 진행 방식
 ---
@@ -28,4 +26,4 @@ iCal 국제 표준을 준수하는 캘린더 서버를 개발해 봅시다.
 
 요구 사항 (단계)
 ---
-- 특정 Step 을 마치지 못했다면, 그 다음 Step의 요구 사항을 보지 않는 것을 권장합니다. https://vsfe.notion.site/Spring-My-Custom-Calendar-9be10f52debd48ad929d0ef56494ebfe
+- 특정 Step 을 마치지 못했다면, 그 다음 Step의 요구 사항을 보지 않는 것을 권장합니다. https://vsfe.notion.site/Spring-PoolC-Backend-Reborn-281c69c2eaf543459fedace987868ea4
