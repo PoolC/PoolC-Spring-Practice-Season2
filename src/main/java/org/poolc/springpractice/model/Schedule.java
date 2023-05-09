@@ -2,6 +2,7 @@ package org.poolc.springpractice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
+@Setter
 public class Schedule {
     @GeneratedValue @Id
     private Long id;
