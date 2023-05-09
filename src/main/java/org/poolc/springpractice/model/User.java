@@ -2,13 +2,13 @@ package org.poolc.springpractice.model;
 
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -27,6 +27,9 @@ public class User {
     @NotEmpty(message = "Email is required for registration.")
     @Email
     private String email;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private Set<Calendar> calendars = new HashSet<>();
 
     private boolean isMember;
     private boolean isAdmin;
