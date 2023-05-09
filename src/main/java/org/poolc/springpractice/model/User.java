@@ -24,9 +24,6 @@ public class User {
     @Size(min = 8)
     private String password;
 
-    @NotBlank(message = "Name is required for registration.")
-    private String name;
-
     @NotEmpty(message = "Email is required for registration.")
     @Email
     private String email;
