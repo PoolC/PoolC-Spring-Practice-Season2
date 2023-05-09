@@ -3,6 +3,7 @@ package org.poolc.springpractice.payload.request.schedule;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.poolc.springpractice.validator.StartBeforeEnd;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 @Getter
 @ToString
 @Builder(toBuilder = true)
+@StartBeforeEnd
 public class ScheduleRequest {
     @NotBlank
     private String title;

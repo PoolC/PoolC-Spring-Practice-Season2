@@ -3,6 +3,7 @@ package org.poolc.springpractice.payload.request.calendar;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.poolc.springpractice.validator.CorrectDeleteMessage;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -11,5 +12,6 @@ import javax.validation.constraints.NotEmpty;
 @Builder(toBuilder = true)
 public class CalendarDeleteRequest {
     @NotEmpty
+    @CorrectDeleteMessage
     private String deleteMessage;
 }

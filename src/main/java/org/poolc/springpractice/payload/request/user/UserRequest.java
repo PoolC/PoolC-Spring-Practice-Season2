@@ -3,6 +3,7 @@ package org.poolc.springpractice.payload.request.user;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.poolc.springpractice.validator.CorrectPassword;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 @Getter
 @ToString
 @Builder(toBuilder = true)
+@CorrectPassword
 public class UserRequest {
 
     @NotBlank(message = "Username is required for registration.")
