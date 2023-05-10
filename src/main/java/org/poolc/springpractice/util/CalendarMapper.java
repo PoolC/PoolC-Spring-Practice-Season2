@@ -3,7 +3,6 @@ package org.poolc.springpractice.util;
 import org.mapstruct.*;
 import org.poolc.springpractice.model.Calendar;
 import org.poolc.springpractice.payload.request.calendar.CalendarRequest;
-import org.poolc.springpractice.payload.request.calendar.CalendarUpdateRequest;
 
 @Mapper(componentModel = "spring")
 public interface CalendarMapper {
