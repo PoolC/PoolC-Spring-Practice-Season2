@@ -11,7 +11,13 @@ import javax.validation.constraints.NotEmpty;
 @ToString
 @Builder(toBuilder = true)
 public class CalendarDeleteRequest {
+
+    @NotEmpty
+    private  String title;
+
     @NotEmpty
     @CorrectDeleteMessage
     private String deleteMessage;
+
+    public CalendarDeleteRequest() {}
 }
