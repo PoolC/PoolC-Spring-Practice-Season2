@@ -16,6 +16,7 @@ public class Calendar {
     @GeneratedValue @Id
     private Long id;
     @NotEmpty
+    @Column(unique = true)
     private String title;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
