@@ -3,6 +3,7 @@ package org.poolc.springpractice.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -18,6 +19,7 @@ public class Schedule {
     private Long id;
 
     @NotBlank
+    @Length(max = 50)
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,6 +36,7 @@ public class Schedule {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    @Length(max = 200)
     private String description;
 
     public Schedule() {}
