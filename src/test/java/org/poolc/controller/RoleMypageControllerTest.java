@@ -12,141 +12,129 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+@AutoConfigureMockMvc
 @SpringBootTest
 @Transactional
-@AutoConfigureMockMvc
-public class MemberControllerTest {
+class RoleMypageControllerTest {
 
 
-    @Autowired
-    SessionManager sessionManager;
     ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MemberService memberService;
     @Autowired
     private LoginService loginService;
     @Autowired
+    private SessionManager sessionManager;
+    @Autowired
     private MockMvc mvc;
 
     @Test
-    public void createFormGet() throws Exception {
+    public void distributeByRoleTest() throws Exception {
 
-        mvc.perform(MockMvcRequestBuilders.get("/members/new"))
+        Member member = new Member("123", "김", "123", "123", "123",
+                "123", "123", MEMBER_ROLE.ROLE_BRONZE);
+        memberService.join(member);
+        loginService.login("123", "123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        sessionManager.createSession(member, response);
+        //request에 응답 쿠키 저장
+        MockHttpSession session = new MockHttpSession();
+        //세션에 로그인 회원 정보 보관.
+        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
+
+        mvc.perform(MockMvcRequestBuilders.get("/role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
                 .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+                .andExpect(view().name("members/memberRole/bronzeMemberMypage"));
+
+        member.setRole(MEMBER_ROLE.ROLE_SILVER);
+        mvc.perform(MockMvcRequestBuilders.get("/role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("members/memberRole/silverMemberMypage"));
+
+        member.setRole(MEMBER_ROLE.ROLE_GOLD);
+        mvc.perform(MockMvcRequestBuilders.get("/role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("members/memberRole/goldMemberMypage"));
+
+        member.setRole(MEMBER_ROLE.ROLE_ADMIN);
+        mvc.perform(MockMvcRequestBuilders.get("/role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("members/memberRole/AdminMemberMypage"));
+
     }
 
     @Test
-    public void createFormPost() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/members/new"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+    public void roleModifyGet() throws Exception {
 
         Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+                "123", "123", MEMBER_ROLE.ROLE_ADMIN);
+        memberService.join(member);
+        loginService.login("123", "123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        sessionManager.createSession(member, response);
+        //request에 응답 쿠키 저장
+        MockHttpSession session = new MockHttpSession();
+        //세션에 로그인 회원 정보 보관.
+        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
+
+        mvc.perform(MockMvcRequestBuilders.get("/admin/roleModify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("members/adminAPI/memberRoleChange"));
+    }
+
+    @Test
+    public void roleModifyPost() throws Exception {
+
+        Member member = new Member("123", "김", "123", "123", "123",
+                "123", "123", MEMBER_ROLE.ROLE_ADMIN);
         memberService.join(member);
 
-        Member member2 = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
-        mvc.perform(MockMvcRequestBuilders.post("/members/new")
-                        .flashAttr("member", member2))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+        Member user = new Member("567", "박", "567", "567", "567",
+                "567", "567", MEMBER_ROLE.ROLE_BRONZE);
+        memberService.join(user);
 
-        member2.setUserId("456");
-        member2.setPassWord("456");
-        member2.setName("성");
-        mvc.perform(MockMvcRequestBuilders.post("/members/new")
-                        .flashAttr("member", member2))
+        loginService.login("123", "123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        sessionManager.createSession(member, response);
+        //request에 응답 쿠키 저장
+        MockHttpSession session = new MockHttpSession();
+        //세션에 로그인 회원 정보 보관.
+        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/admin/roleModify")
+                        .param("memberId", user.getId().toString())
+                        .param("member_role", MEMBER_ROLE.ROLE_SILVER.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(member))
+                        .session(session))
                 .andExpect(view().name("redirect:/"));
+        assertThat(user.getRole()).isEqualTo(MEMBER_ROLE.ROLE_SILVER);
     }
 
-    @Test
-    public void MemberListGet() throws Exception {
-
-        Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
-        memberService.join(member);
-        loginService.login("123", "123");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        sessionManager.createSession(member, response);
-        MockHttpSession session = new MockHttpSession();
-        //세션에 로그인 회원 정보 보관.
-        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-
-        mvc.perform(MockMvcRequestBuilders.get("/members")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/memberList"));
-    }
-
-    @Test
-    public void updateFormGet() throws Exception {
-
-        Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
-        memberService.join(member);
-        loginService.login("123", "123");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        sessionManager.createSession(member, response);
-        //request에 응답 쿠키 저장
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpSession session = new MockHttpSession();
-        //세션에 로그인 회원 정보 보관.
-        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-
-        mvc.perform(MockMvcRequestBuilders.get("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/updateMemberForm"));
-    }
-
-    @Test
-    @Transactional
-    public void updateFormPost() throws Exception {
-        Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
-        memberService.join(member);
-        loginService.login("123", "123");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        sessionManager.createSession(member, response);
-        //request에 응답 쿠키 저장
-        MockHttpServletRequest request = new MockHttpServletRequest();
-
-        MockHttpSession session = new MockHttpSession();
-        //세션에 로그인 회원 정보 보관.
-        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
-
-        mvc.perform(MockMvcRequestBuilders.post("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/updateMemberForm"));
-
-
-        Member member2 = new Member("1234", "김", "1234", "1234", "1234",
-                "1234", "1234", MEMBER_ROLE.ROLE_SILVER);
-
-        mvc.perform(MockMvcRequestBuilders.post("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session)
-                        .flashAttr("member", member2))
-                .andExpect(view().name("redirect:/loginedMembers/logout"));
-    }
 }

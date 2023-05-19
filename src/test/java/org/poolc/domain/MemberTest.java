@@ -1,6 +1,5 @@
 package org.poolc.domain;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,8 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MemberTest {
 
     @Test
-    void constructorTest(){
-        Member member =new Member();
+    void constructorTest() {
+        Member member = new Member();
         member.setUserId("123");
         member.setPassWord("123");
         member.setName("123");
@@ -18,9 +17,17 @@ class MemberTest {
         member.setEmail("123");
         member.setStudentId("123");
         member.setPhoneNum("123");
-        Member member2 = new Member("123","123","123",
-                "123","123","123","123");
+        member.setRole(MEMBER_ROLE.ROLE_SILVER);
+        Member member2 = new Member("123", "123", "123",
+                "123", "123", "123", "123", MEMBER_ROLE.ROLE_SILVER);
         assertThat(member.getUserId()).isEqualTo(member2.getUserId());
+    }
+
+    @Test
+    void getRole() {
+        Member member = new Member();
+        member.setRole(MEMBER_ROLE.ROLE_SILVER);
+        assertThat(MEMBER_ROLE.ROLE_SILVER).isEqualTo(member.getRole());
     }
 
     @Test
@@ -78,7 +85,6 @@ class MemberTest {
         member.setStudentId("123");
         assertThat("123").isEqualTo(member.getStudentId());
     }
-
 
 
     @Test

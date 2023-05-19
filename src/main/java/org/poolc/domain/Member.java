@@ -1,7 +1,5 @@
 package org.poolc.domain;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
@@ -9,34 +7,47 @@ import javax.validation.constraints.NotEmpty;
 public class Member {
 
     //this is PK
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "USERID") @NotEmpty
+    @Column(name = "USERID")
+    @NotEmpty
     private String userId;
 
-    @Column(name = "NAME") @NotEmpty
+    @Column(name = "NAME")
+    @NotEmpty
     private String name;
 
-    @Column(name = "PASSWORD") @NotEmpty
+    @Column(name = "PASSWORD")
+    @NotEmpty
     private String passWord;
 
-    @Column(name = "EMAIL") @NotEmpty
+    @Column(name = "EMAIL")
+    @NotEmpty
     private String email;
 
-    @Column(name = "PHONENUM") @NotEmpty
+    @Column(name = "PHONENUM")
+    @NotEmpty
     private String phoneNum;
 
-    @Column(name = "DEPARTMENT") @NotEmpty
+    @Column(name = "DEPARTMENT")
+    @NotEmpty
     private String department;
 
-    @Column(name = "STUDENTID") @NotEmpty
+    @Column(name = "STUDENTID")
+    @NotEmpty
     private String studentId;
 
-    public Member(){}
+    @Column(name = "ROLE")
+    private MEMBER_ROLE role;
 
-    public Member( String userId, String name, String passWord,
-                  String email, String phoneNum, String department, String studentId) {
+
+    public Member() {
+    }
+
+    public Member(String userId, String name, String passWord,
+                  String email, String phoneNum, String department, String studentId, MEMBER_ROLE role) {
         this.userId = userId;
         this.name = name;
         this.passWord = passWord;
@@ -44,6 +55,7 @@ public class Member {
         this.phoneNum = phoneNum;
         this.department = department;
         this.studentId = studentId;
+        this.role = role;
     }
 
     public Long getId() {
@@ -110,4 +122,11 @@ public class Member {
         this.studentId = studentId;
     }
 
+    public MEMBER_ROLE getRole() {
+        return role;
+    }
+
+    public void setRole(MEMBER_ROLE role) {
+        this.role = role;
+    }
 }

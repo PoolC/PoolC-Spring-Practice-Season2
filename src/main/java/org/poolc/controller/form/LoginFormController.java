@@ -1,7 +1,5 @@
 package org.poolc.controller.form;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 
 public class LoginFormController {

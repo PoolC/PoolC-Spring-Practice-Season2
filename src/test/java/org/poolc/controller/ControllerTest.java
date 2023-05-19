@@ -1,22 +1,17 @@
 package org.poolc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.poolc.controller.form.LoginFormController;
 import org.poolc.controller.session.SessionConst;
 import org.poolc.controller.session.SessionManager;
+import org.poolc.domain.MEMBER_ROLE;
 import org.poolc.domain.Member;
-import org.poolc.repository.MemberRepository;
-import org.poolc.service.LoginServiceImpl;
+import org.poolc.service.LoginService;
 import org.poolc.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -24,28 +19,24 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 //@WebMvcTest(HomeController.class)
-@AutoConfigureMockMvc @SpringBootTest @Transactional
+@AutoConfigureMockMvc
+@SpringBootTest
+@Transactional
 public class ControllerTest {
 
 
+    ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private SessionManager sessionManager;
-
-
     @Autowired
     private MemberService memberService;
     @Autowired
-    private LoginServiceImpl loginService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
-
-
+    private LoginService loginService;
     @Autowired
     private MockMvc mvc;
 
@@ -64,8 +55,8 @@ public class ControllerTest {
     @Test
     public void loginHome() throws Exception {
 
-        Member member =new Member("123","김","123","123","123",
-                "123","123");
+        Member member = new Member("123", "김", "123", "123", "123",
+                "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         loginService.login("123", "123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -86,45 +77,44 @@ public class ControllerTest {
     @Test
     public void loginGet() throws Exception {
 
-        mvc.perform(MockMvcRequestBuilders.get("/members/login"))
+        mvc.perform(MockMvcRequestBuilders.get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("members/loginMemberForm"));
     }
 
     @Test
     public void loginPost() throws Exception {
-        Member member =new Member("123","김","123","123","123",
-                "123","123");
+        Member member = new Member("123", "김", "123", "123", "123",
+                "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         LoginFormController form = new LoginFormController();
         form.setLoginId("1234");
         form.setPassword("1234");
-        mvc.perform(post("/members/login"))
+        mvc.perform(post("/login"))
                 .andExpect(status().isOk())
                 //나중에 변경
                 .andExpect(view().name("members/loginMemberForm"));
 
-        mvc.perform(post("/members/login")
-                        .flashAttr("loginForm",form))
+        mvc.perform(post("/login")
+                        .flashAttr("loginForm", form))
                 .andExpect(status().isOk())
-                //나중에 변경
                 .andExpect(view().name("members/loginMemberForm"));
         form.setLoginId("123");
         form.setPassword("123");
-        mvc.perform(post("/members/login")
-                        .flashAttr("loginForm",form))
-                //나중에 변경
+        mvc.perform(post("/login")
+                        .param("redirectURL", "/")
+                        .flashAttr("loginForm", form))
                 .andExpect(view().name("redirect:/"));
     }
 
     @Test
     public void logoutGetAndPost() throws Exception {
-        Member member =new Member("123","김","123","123","123",
-                "123","123");
+        Member member = new Member("123", "김", "123", "123", "123",
+                "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         loginService.login("123", "123");
 
-        mvc.perform(MockMvcRequestBuilders.get("/members/logout"))
+        mvc.perform(MockMvcRequestBuilders.get("/loginedMembers/logout"))
                 .andExpect(view().name("redirect:/"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -132,7 +122,7 @@ public class ControllerTest {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
-        mvc.perform(post("/members/logout")
+        mvc.perform(post("/loginedMembers/logout")
                         .session(session))
                 .andExpect(view().name("redirect:/"));
     }
