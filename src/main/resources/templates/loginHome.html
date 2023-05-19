@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="container">
+    <div>
+        <h1>Hello Spring JB</h1>
+        <h2 th:text="|로그인: ${member.name}|">로그인 사용자 이름</h2>
+        <p>회원 기능</p>
+        <form method="post" th:action="@{loginedMembers/logout}">
+            <button class="w-100 btn btn-dark btn-lg" type="submit">
+                로그아웃
+            </button>
+            <a href="/members/update">회원 정보 수정</a>
+            <a href="/role">마이 페이지</a>
+        </form>
+    </div>
+</div>
+
+
+</body>
+</html>
