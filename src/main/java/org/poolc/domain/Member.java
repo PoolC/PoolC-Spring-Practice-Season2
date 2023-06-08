@@ -1,6 +1,12 @@
 package org.poolc.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotEmpty;
 
 @Entity //@Data가 들어왔을때 전체 coverage 가능한 테스트는 어떻게 할까?
@@ -40,6 +46,9 @@ public class Member {
     private String studentId;
 
     @Column(name = "ROLE")
+    //default는 EnumType.ORDINAL이지만(int로 db에 저장), 추후에 새로운 등급이 추가 될 경우
+    //등급이 밀리거나 숫자에 할당된 role이 변경될 위험 매우 높음(큰 장애 발생 가능) 따라서 EnumType.String으로 변경
+    @Enumerated(EnumType.STRING)
     private MEMBER_ROLE role;
 
 
@@ -47,7 +56,7 @@ public class Member {
     }
 
     public Member(String userId, String name, String passWord,
-                  String email, String phoneNum, String department, String studentId, MEMBER_ROLE role) {
+        String email, String phoneNum, String department, String studentId, MEMBER_ROLE role) {
         this.userId = userId;
         this.name = name;
         this.passWord = passWord;

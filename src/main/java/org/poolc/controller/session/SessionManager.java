@@ -1,15 +1,15 @@
 package org.poolc.controller.session;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.CookieGenerator;
-
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.CookieGenerator;
 
 @Component
 public class SessionManager {
@@ -20,7 +20,7 @@ public class SessionManager {
     /**
      * 세션 생성
      */
-    public void createSession(Object value, HttpServletResponse response){
+    public void createSession(Object value, HttpServletResponse response) {
 
         //세션 id 생성 후 값을 세션에 저장
         String sessionId = UUID.randomUUID().toString();
@@ -39,31 +39,27 @@ public class SessionManager {
     /**
      * 세션 조회 ->request로부터 온 Session에 저장해둔 memberID가 있는지 체크/ 있다면 value return
      */
-    public Object getSession(HttpServletRequest request) {
-        Cookie sessionCookie = findCookie(request, SESSION_COOKIE_NAME);
-        if (sessionCookie == null) {
-            return null;
+    public Optional<Object> getSession(HttpServletRequest request) {
+        if (findCookie(request, SESSION_COOKIE_NAME).isEmpty()) {
+            return Optional.empty();
         }
-        return sessionStore.get(sessionCookie.getValue());
+        return Optional.ofNullable(
+            sessionStore.get(findCookie(request, SESSION_COOKIE_NAME).get().getValue()));
     }
+
     /**
      * 세션 만료
      */
     public void expire(HttpServletRequest request) {
-        Cookie sessionCookie = findCookie(request, SESSION_COOKIE_NAME);
-        if (sessionCookie != null) {
-            sessionStore.remove(sessionCookie.getValue());
+        if (!findCookie(request, SESSION_COOKIE_NAME).isEmpty()) {
+            sessionStore.remove(findCookie(request, SESSION_COOKIE_NAME).get().getValue());
         }
 
     }
 
-    private Cookie findCookie(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() == null) {
-            return null;
-        }
-        return Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals(cookieName))
-                .findAny()
-                .orElse(null);
+    private Optional<Cookie> findCookie(HttpServletRequest request, String cookieName) {
+        return request.getCookies() == null ? Optional.empty() : Arrays.stream(request.getCookies())
+            .filter(cookie -> cookie.getName().equals(cookieName))
+            .findAny();
     }
 }

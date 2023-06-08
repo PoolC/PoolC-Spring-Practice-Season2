@@ -1,5 +1,8 @@
 package org.poolc.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.poolc.controller.session.SessionConst;
@@ -18,9 +21,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @SpringBootTest
 @Transactional
@@ -42,40 +42,40 @@ public class MemberControllerTest {
     public void createFormGet() throws Exception {
 
         mvc.perform(MockMvcRequestBuilders.get("/members/new"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/createMemberForm"));
     }
 
     @Test
     public void createFormPost() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/members/new"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/createMemberForm"));
 
         Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
 
         Member member2 = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
         mvc.perform(MockMvcRequestBuilders.post("/members/new")
-                        .flashAttr("member", member2))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/createMemberForm"));
+                .flashAttr("member", member2))
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/createMemberForm"));
 
         member2.setUserId("456");
         member2.setPassWord("456");
         member2.setName("성");
         mvc.perform(MockMvcRequestBuilders.post("/members/new")
-                        .flashAttr("member", member2))
-                .andExpect(view().name("redirect:/"));
+                .flashAttr("member", member2))
+            .andExpect(view().name("redirect:/"));
     }
 
     @Test
     public void MemberListGet() throws Exception {
 
         Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         loginService.login("123", "123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -84,19 +84,65 @@ public class MemberControllerTest {
         //세션에 로그인 회원 정보 보관.
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
-        mvc.perform(MockMvcRequestBuilders.get("/members")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/memberList"));
+        mvc.perform(MockMvcRequestBuilders.get("/members/list")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session))
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/memberList"));
+
+        getListTest("/members/list", "queryFilteredRole", "invalid_input",
+            member, session, "redirect:/");
+
+        getListTest("/members/list", "queryFilteredRole", "admin",
+            member, session, "members/memberList");
+
+        getListTest("/members/list", "queryFilteredRole", "gold",
+            member, session, "members/memberList");
+
+        getListTest("/members/list", "queryFilteredRole", "silver",
+            member, session, "members/memberList");
+
+        getListTest("/members/list", "queryFilteredRole", "bronze",
+            member, session, "members/memberList");
+    }
+
+    @Test
+    public void MemberListPost() throws Exception {
+
+        Member member = new Member("123", "김", "123", "123", "123",
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
+        memberService.join(member);
+        loginService.login("123", "123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        sessionManager.createSession(member, response);
+        MockHttpSession session = new MockHttpSession();
+        //세션에 로그인 회원 정보 보관.
+        session.setAttribute(SessionConst.LOGIN_MEMBER, member);
+
+        postListTest("/members/list", "role_filter", "all",
+            member, session, "redirect:/members/list?queryFilteredRole=all");
+
+        postListTest("/members/list", "role_filter", "admin",
+            member, session, "redirect:/members/list?queryFilteredRole=admin");
+
+        postListTest("/members/list", "role_filter", "gold",
+            member, session, "redirect:/members/list?queryFilteredRole=gold");
+
+        postListTest("/members/list", "role_filter", "silver",
+            member, session, "redirect:/members/list?queryFilteredRole=silver");
+
+        postListTest("/members/list", "role_filter", "bronze",
+            member, session, "redirect:/members/list?queryFilteredRole=bronze");
+
+
     }
 
     @Test
     public void updateFormGet() throws Exception {
 
         Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         loginService.login("123", "123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -108,18 +154,18 @@ public class MemberControllerTest {
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
         mvc.perform(MockMvcRequestBuilders.get("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/updateMemberForm"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session))
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/updateMemberForm"));
     }
 
     @Test
     @Transactional
     public void updateFormPost() throws Exception {
         Member member = new Member("123", "김", "123", "123", "123",
-                "123", "123", MEMBER_ROLE.ROLE_SILVER);
+            "123", "123", MEMBER_ROLE.ROLE_SILVER);
         memberService.join(member);
         loginService.login("123", "123");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -132,21 +178,42 @@ public class MemberControllerTest {
         session.setAttribute(SessionConst.LOGIN_MEMBER, member);
 
         mvc.perform(MockMvcRequestBuilders.post("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("members/updateMemberForm"));
-
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session))
+            .andExpect(status().isOk())
+            .andExpect(view().name("members/updateMemberForm"));
 
         Member member2 = new Member("1234", "김", "1234", "1234", "1234",
-                "1234", "1234", MEMBER_ROLE.ROLE_SILVER);
+            "1234", "1234", MEMBER_ROLE.ROLE_SILVER);
 
         mvc.perform(MockMvcRequestBuilders.post("/members/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(member))
-                        .session(session)
-                        .flashAttr("member", member2))
-                .andExpect(view().name("redirect:/loginedMembers/logout"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session)
+                .flashAttr("member", member2))
+            .andExpect(view().name("redirect:/loginedMembers/logout"));
     }
+
+    private void getListTest(String urlTemplate, String paramName, String paramValue,
+        Member member, MockHttpSession session, String expectedViewName) throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get(urlTemplate)
+                .param(paramName, paramValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session))
+            .andExpect(view().name(expectedViewName));
+    }
+
+    private void postListTest(String urlTemplate, String paramName, String paramValue,
+        Member member, MockHttpSession session, String expectedViewName) throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                .param(paramName, paramValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(member))
+                .session(session))
+            .andExpect(view().name(expectedViewName));
+    }
+
+
 }

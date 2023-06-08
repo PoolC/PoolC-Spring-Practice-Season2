@@ -1,22 +1,20 @@
 package org.poolc.controller.session;
 
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.poolc.domain.Member;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 class SessionManagerTest {
+
     SessionManager sessionManager = new SessionManager();
 
     @Test
-    void sessionTest(){
+    void sessionTest() {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         Member member = new Member();
@@ -27,19 +25,18 @@ class SessionManagerTest {
         request.setCookies(response.getCookies());
 
         //session 조회
-        Object result = sessionManager.getSession(request);
+        Object result = sessionManager.getSession(request).get();
         assertThat(result).isEqualTo(member);
 
         //session 만료
         sessionManager.expire(request);
-        Object expired = sessionManager.getSession(request);
-        assertThat(expired).isEqualTo(null);
+        assertThat(sessionManager.getSession(request)).isEqualTo(Optional.empty());
     }
 
     @Test
-    void nullSessionTest(){
+    void nullSessionTest() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        assertThat(sessionManager.getSession(request)).isNull();
+        assertThat(sessionManager.getSession(request)).isEqualTo(Optional.empty());
         sessionManager.expire(request);
     }
 }

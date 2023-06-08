@@ -3,22 +3,76 @@
 <body>
 
 <div class="container">
-    <div>
-        <table>
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>이름</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="member : ${members}">
-                <td th:text="${member.id}"></td>
-                <td th:text="${member.name}"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+  <div>
+    <table>
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>이름</th>
+      </tr>
+      <form action="/members/list" method="post">
+        <div class="col-md-4">
+          <select class="form-control" id="role_filter" name="role_filter" type="text" value="all">
+            <option th:selected="${role_filter} == all" value="all">All</option>
+            <option th:selected="${role_filter} == admin" value="admin">ADMIN</option>
+            <option th:selected="${role_filter} == gold" value="gold"> GOLD</option>
+            <option th:selected="${role_filter} == silver" value="silver"> SILVER</option>
+            <option th:selected="${role_filter} == bronze" value="bronze"> BRONZE</option>
+          </select>
+          <button style="float:right;" type="submit">등록</button>
+        </div>
+      </form>
+      </thead>
+      <tbody>
+      <tr th:each="member : ${members}">
+        <td th:text="${member.id}"></td>
+        <td th:text="${member.name}"></td>
+        <td th:text="${member.studentId}"></td>
+        <td th:text="${member.department}"></td>
+        <td th:text="${member.role}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- 페이지 영역 -->
+  <nav style="text-align: center;">
+    <ul class="pagination"
+        th:with="start=${T(java.lang.Math).floor(members.number/10)*10 + 1},
+                    last=(${start + 9 < members.totalPages ? start + 9 : members.totalPages})">
+      <li>
+        <a aria-label="First" th:href="@{/members/list(page=1,queryFilteredRole=${role_filter})}">
+          <span aria-hidden="true">First</span>
+        </a>
+      </li>
+
+      <li th:class="${members.first} ? 'disabled'">
+        <a aria-label="Previous"
+           th:href="${members.first} ? '#' :@{/members/list(page=${members.number},queryFilteredRole=${role_filter})}">
+          <span aria-hidden="true">&lt;</span>
+        </a>
+      </li>
+
+      <li th:class="${page == members.number + 1} ? 'active'"
+          th:each="page: ${#numbers.sequence(start, last)}">
+        <a th:href="@{/members/list(page=${page},queryFilteredRole=${role_filter})}"
+           th:text="${page}"></a>
+      </li>
+
+      <li th:class="${members.last} ? 'disabled'">
+        <a aria-label="Next"
+           th:href="${members.last} ? '#' : @{/members/list(page=${members.number + 2},queryFilteredRole=${role_filter})}">
+          <span aria-hidden="true">&gt;</span>
+        </a>
+      </li>
+
+      <li>
+        <a aria-label="Last"
+           th:href="@{/members/list(page=${members.totalPages},queryFilteredRole=${role_filter})}">
+          <span aria-hidden="true">Last</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>
 
 </body>
