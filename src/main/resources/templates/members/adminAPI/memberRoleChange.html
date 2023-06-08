@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="container">
+    <div>
+        <h1>변경할 회원을 선택해주세요</h1>
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>이름</th>
+                <th>등급</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="member : ${members}">
+                <td th:text="${member.id}"></td>
+                <td th:text="${member.name}"></td>
+                <td>
+                    <form action="/admin/roleModify" method="post">
+                        <div class="form-group">
+                            <!-- name 컨트롤러로 전달되는 파라미터의 key 값 -->
+                            <!--<label for="member_role">회원등급</label>-->
+                            <!--<input id="member_role" name="member_role" th:placeholder="${member.role}" type="text"> -->
+                        </div>
+                        <input id="memberId" name="memberId" th:value="${member.id}" type="hidden">
+                        <div class="col-md-4">
+                            <label class="col-form-label">MEMBER_ROLE:</label>
+                            <select class="form-control" id="member_role" name="member_role"
+                                    th:placeholder="${member.role}">
+                                <option th:each="member_roleValue : ${T(org.poolc.domain.MEMBER_ROLE).values()}"
+                                        th:selected="${member_roleValue} == ${member.role}"
+                                        th:text="${member_roleValue.name()}"
+                                        th:value="${member_roleValue.name()}">
+                                    val
+                                </option>
+                            </select>
+                        </div>
+                        <button style="float:right;" type="submit">등록</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+</body>
+</html>

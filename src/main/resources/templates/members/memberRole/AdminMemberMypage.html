@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div class="container">
+    <div>
+        <h1>관리자님 환영합니다. 무엇을 도와드릴까요?</h1>
+        <h2 th:text="|로그인: ${member.name}|">관리자님</h2>
+        <p>회원 기능</p>
+        <form method="post" th:action="@{loginedMembers/logout}">
+            <button class="w-100 btn btn-dark btn-lg" type="submit">
+                로그아웃
+            </button>
+            <a href="/admin/roleModify">회원 권한 수정</a>
+            <a href="/">홈으로 가기</a>
+        </form>
+    </div>
+</div>
+
+
+</body>
+</html>
