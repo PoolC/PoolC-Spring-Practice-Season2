@@ -59,7 +59,7 @@ public class MemberController {
     public String list(@PageableDefault Pageable pageable, Model model,
         @RequestParam(value = "queryFilteredRole", defaultValue = "all") String queryFilteredRole) {
 
-        System.out.println("filteredRole = " + queryFilteredRole);
+        log.debug("filteredRole = " + queryFilteredRole);
         Page<Member> members = filterDistributor(queryFilteredRole, pageable);
         //지정된 등급외의 잘못된 필터링용 input이 들어왔는지 validation (SRP인가...?)
         // 홈 화면으로 다시 리다이렉션 -> 혹시나 필터에서 걸리지 않은 비로그인 사용자 방지
